@@ -18,9 +18,8 @@ app.get("/", (c) => {
   return c.json({ status: "ok", service: "lunchmoney-mcp" });
 });
 
-// MCP endpoint - accepts JSON-RPC requests
-// Auth is checked inside the handler based on the method
-app.post("/mcp", async (c) => {
+// MCP handler function
+async function handleMcpPost(c: any) {
   const body = (await c.req.json()) as JsonRpcRequest;
 
   // Methods that don't require auth (for MCP handshake)
@@ -43,6 +42,12 @@ app.post("/mcp", async (c) => {
 
   const response = await handleMcpRequest(body);
   return c.json(response);
-});
+}
+
+// MCP endpoint at root - Claude.ai expects this
+app.post("/", handleMcpPost);
+
+// MCP endpoint at /mcp - alternative path
+app.post("/mcp", handleMcpPost);
 
 export default app;
