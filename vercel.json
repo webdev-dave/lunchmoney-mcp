@@ -1,12 +1,14 @@
 {
+  "cleanUrls": false,
+  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/.well-known/:path*",
-      "destination": "/api/.well-known/:path*"
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": "/api"
     },
     {
-      "source": "/(.*)",
-      "destination": "/api/$1"
+      "source": "/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }
