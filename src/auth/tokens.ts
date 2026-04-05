@@ -61,12 +61,23 @@ export function verifyAuthCode(
   codeVerifier: string
 ): boolean {
   const payload = verify(code);
-  if (!payload || payload.type !== "auth_code") return false;
+  console.log("verifyAuthCode - payload:", payload);
+  
+  if (!payload || payload.type !== "auth_code") {
+    console.log("verifyAuthCode - invalid payload or type");
+    return false;
+  }
 
   // Verify PKCE (RFC 7636): SHA256(code_verifier) should match code_challenge
   const computedChallenge = createHash("sha256")
     .update(codeVerifier)
     .digest("base64url");
+
+  console.log("verifyAuthCode - PKCE comparison:", {
+    stored: payload.codeChallenge,
+    computed: computedChallenge,
+    match: payload.codeChallenge === computedChallenge,
+  });
 
   return payload.codeChallenge === computedChallenge;
 }
