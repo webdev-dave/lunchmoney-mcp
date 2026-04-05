@@ -18,26 +18,29 @@ app.get("/", (c) => {
   return c.json({ status: "ok", service: "lunchmoney-mcp" });
 });
 
-// Auth middleware for MCP endpoint
-app.use("/mcp", async (c, next) => {
-  const authHeader = c.req.header("Authorization");
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return c.json({ error: "Missing or invalid Authorization header" }, 401);
-  }
-
-  const token = authHeader.slice(7); // Remove "Bearer " prefix
-
-  if (!verifyAccessToken(token)) {
-    return c.json({ error: "Invalid or expired token" }, 401);
-  }
-
-  await next();
-});
-
 // MCP endpoint - accepts JSON-RPC requests
+// Auth is checked inside the handler based on the method
 app.post("/mcp", async (c) => {
   const body = (await c.req.json()) as JsonRpcRequest;
+
+  // Methods that don't require auth (for MCP handshake)
+  const publicMethods = ["initialize", "notifications/initialized"];
+
+  if (!publicMethods.includes(body.method)) {
+    // Require auth for all other methods
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid Authorization header" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+
+    if (!verifyAccessToken(token)) {
+      return c.json({ error: "Invalid or expired token" }, 401);
+    }
+  }
+
   const response = await handleMcpRequest(body);
   return c.json(response);
 });
