@@ -134,12 +134,12 @@ oauth.post("/authorize", async (c) => {
   const state = body.state as string;
   const codeChallenge = body.code_challenge as string;
 
-  const expectedPassword = process.env.OAUTH_PASSWORD;
+  const expectedPassword = process.env.OAUTH_PASSWORD?.trim();
   if (!expectedPassword) {
     return c.text("Server misconfigured: OAUTH_PASSWORD not set", 500);
   }
 
-  if (password !== expectedPassword) {
+  if (password.trim() !== expectedPassword) {
     // Re-render form with error
     const html = `
       <!DOCTYPE html>
