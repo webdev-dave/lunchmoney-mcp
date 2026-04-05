@@ -82,6 +82,28 @@ If you need to immediately invalidate all tokens (e.g., suspected compromise):
 2. All existing tokens become invalid instantly
 3. You'll need to re-authenticate in Claude.ai
 
+### Managing Your Password
+
+Your OAuth password is stored as an environment variable in Vercel. Here's how to manage it:
+
+**View/Change Password:**
+1. Go to [vercel.com](https://vercel.com) → your `lunchmoney-mcp` project
+2. Click **Settings** → **Environment Variables**
+3. Find `OAUTH_PASSWORD` — click to view or edit
+4. After changing, click **Save**
+5. Go to **Deployments** → click the 3-dot menu on the latest → **Redeploy**
+6. Next time you connect from Claude, use the new password
+
+**Troubleshooting Password Issues:**
+- Ensure there are no extra spaces or line breaks in the value
+- Verify the variable is enabled for **Production** environment
+- After any change, you must **redeploy** for it to take effect
+
+**Generate a Strong Password:**
+```bash
+openssl rand -base64 16
+```
+
 ## Setup
 
 1. Get your Lunch Money API token from [my.lunchmoney.app/developers](https://my.lunchmoney.app/developers)

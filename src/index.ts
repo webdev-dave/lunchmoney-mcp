@@ -18,16 +18,6 @@ app.get("/", (c) => {
   return c.json({ status: "ok", service: "lunchmoney-mcp" });
 });
 
-// Temporary debug endpoint - remove after testing
-app.get("/debug-env", (c) => {
-  return c.json({
-    OAUTH_PASSWORD_SET: !!process.env.OAUTH_PASSWORD,
-    OAUTH_PASSWORD_LENGTH: process.env.OAUTH_PASSWORD?.length || 0,
-    TOKEN_SECRET_SET: !!process.env.TOKEN_SECRET,
-    LUNCHMONEY_API_TOKEN_SET: !!process.env.LUNCHMONEY_API_TOKEN,
-  });
-});
-
 // MCP endpoint - accepts JSON-RPC requests
 // Auth is checked inside the handler based on the method
 app.post("/mcp", async (c) => {
