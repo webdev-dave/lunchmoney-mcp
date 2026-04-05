@@ -226,30 +226,15 @@ oauth.post("/token", async (c) => {
   const code = body.code as string;
   const codeVerifier = body.code_verifier as string;
 
-  // Debug logging - remove after fixing
-  console.log("Token request:", {
-    grantType,
-    hasCode: !!code,
-    codeLength: code?.length,
-    hasCodeVerifier: !!codeVerifier,
-    codeVerifierLength: codeVerifier?.length,
-  });
-
   if (grantType !== "authorization_code") {
-    console.log("Error: unsupported_grant_type", grantType);
     return c.json({ error: "unsupported_grant_type" }, 400);
   }
 
   if (!code || !codeVerifier) {
-    console.log("Error: invalid_request - missing code or verifier");
     return c.json({ error: "invalid_request" }, 400);
   }
 
-  const verifyResult = verifyAuthCode(code, codeVerifier);
-  console.log("Verify result:", verifyResult);
-
-  if (!verifyResult) {
-    console.log("Error: invalid_grant - code verification failed");
+  if (!verifyAuthCode(code, codeVerifier)) {
     return c.json({ error: "invalid_grant" }, 400);
   }
 

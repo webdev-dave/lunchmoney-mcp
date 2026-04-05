@@ -12,8 +12,8 @@ Enables Claude to query your Lunch Money data — transactions, budgets, categor
 Claude.ai → MCP Protocol → This Server (Vercel) → Lunch Money API
 ```
 
-1. Claude sends a JSON-RPC request to the `/mcp` endpoint
-2. The server validates the auth token and routes to the appropriate tool
+1. Claude sends a JSON-RPC request to your server's root endpoint
+2. The server validates the OAuth token and routes to the appropriate tool
 3. The tool calls the Lunch Money API and returns formatted results
 4. Claude interprets the data and responds in natural language
 
@@ -120,37 +120,48 @@ openssl rand -base64 16
 
 ```
 lunchmoney-mcp/
-├── api/                          # Vercel serverless entry point
-│   └── [[...route]].ts           # Catch-all route → delegates to Hono
+├── api/
+│   └── [[...route]].ts           # Vercel catch-all → delegates to Hono
 │
 ├── src/
-│   ├── index.ts                  # Hono app: routes, middleware, MCP endpoint
+│   ├── index.ts                  # Hono app: CORS, OAuth routes, MCP endpoint
 │   ├── auth/
-│   │   ├── oauth.ts              # OAuth endpoints (/authorize, /token, etc.)
-│   │   └── tokens.ts             # Token creation & validation (HMAC-signed)
+│   │   ├── oauth.ts              # OAuth endpoints (/register, /authorize, /token)
+│   │   └── tokens.ts             # HMAC-signed token creation & validation
 │   ├── services/
-│   │   └── lunchmoney.ts         # Lunch Money API client
-│   └── mcp/                      # (planned) MCP tools
-│       ├── handler.ts            # JSON-RPC router
+│   │   ├── lunchmoney.ts         # Lunch Money API client
+│   │   └── lunchmoney.types.ts   # TypeScript types for API responses
+│   └── mcp/
+│       ├── handler.ts            # JSON-RPC router (initialize, tools/list, tools/call)
+│       ├── types.ts              # MCP protocol types
 │       └── tools/                # Tool implementations
+│           ├── index.ts          # Tool registry
+│           ├── user.ts
+│           ├── categories.ts
+│           ├── tags.ts
+│           ├── transactions.ts
+│           ├── accounts.ts
+│           ├── assets.ts
+│           ├── recurring.ts
+│           └── budgets.ts
 │
 ├── vercel.json                   # Vercel route rewrites
 ├── tsconfig.json                 # TypeScript config
 └── .env.local                    # Environment variables (not committed)
 ```
 
-## Available Tools (Planned)
+## Available Tools
 
 | Tool | Description |
 |------|-------------|
-| `get_user` | Get account info |
-| `get_transactions` | Query transactions by date range, category, account |
-| `get_categories` | List spending categories |
-| `get_budgets` | Get budget data for a date range |
-| `get_recurring_items` | List recurring expenses |
-| `get_plaid_accounts` | List linked bank accounts |
-| `get_assets` | List manual assets |
-| `get_tags` | List transaction tags |
+| `get_user` | Get account info (name, email, budget name, currency) |
+| `get_categories` | List spending categories (supports nested/flattened format) |
+| `get_tags` | List all transaction tags |
+| `get_transactions` | Query transactions by date range, category, account, tag, status |
+| `get_plaid_accounts` | List linked bank accounts with balances |
+| `get_assets` | List manually-tracked assets |
+| `get_recurring_items` | List recurring expenses and income |
+| `get_budgets` | Get budget amounts and actual spending by category |
 
 ## Tech Stack
 
@@ -173,8 +184,12 @@ lunchmoney-mcp/
 # Install dependencies
 npm install
 
+# Install Vercel CLI globally (if not already installed)
+npm install -g vercel
+
 # Run locally with Vercel dev server
-npm run dev
+npm start
+# or directly: vercel dev
 
 # The server will be available at http://localhost:3000
 ```
