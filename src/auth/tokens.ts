@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, createHash } from "crypto";
 
 const TOKEN_EXPIRY_DAYS = 90; // 3 months
 
@@ -63,11 +63,10 @@ export function verifyAuthCode(
   const payload = verify(code);
   if (!payload || payload.type !== "auth_code") return false;
 
-  // Verify PKCE: hash the verifier and compare to stored challenge
-  const computedChallenge = createHmac("sha256", "pkce")
+  // Verify PKCE (RFC 7636): SHA256(code_verifier) should match code_challenge
+  const computedChallenge = createHash("sha256")
     .update(codeVerifier)
-    .digest("base64url")
-    .replace(/=/g, "");
+    .digest("base64url");
 
   return payload.codeChallenge === computedChallenge;
 }
