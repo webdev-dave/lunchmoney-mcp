@@ -10,9 +10,34 @@ oauth.get("/.well-known/oauth-authorization-server", (c) => {
     issuer: baseUrl,
     authorization_endpoint: `${baseUrl}/authorize`,
     token_endpoint: `${baseUrl}/token`,
+    registration_endpoint: `${baseUrl}/register`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
     code_challenge_methods_supported: ["S256"],
+    token_endpoint_auth_methods_supported: ["client_secret_post"],
+  });
+});
+
+// Dynamic Client Registration endpoint (RFC 7591)
+// Claude.ai calls this to register itself as an OAuth client
+oauth.post("/register", async (c) => {
+  const body = await c.req.json();
+  const baseUrl = new URL(c.req.url).origin;
+
+  // For a personal server, we return a static client_id
+  // The client_secret is not really used since we do password-based auth
+  const clientId = "claude-mcp-client";
+  const clientSecret = "not-used-for-password-auth";
+
+  return c.json({
+    client_id: clientId,
+    client_secret: clientSecret,
+    client_id_issued_at: Math.floor(Date.now() / 1000),
+    client_secret_expires_at: 0, // Never expires
+    redirect_uris: body.redirect_uris || [],
+    grant_types: ["authorization_code"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "client_secret_post",
   });
 });
 
