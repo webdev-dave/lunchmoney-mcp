@@ -1,15 +1,17 @@
 {
   "name": "lunchmoney-mcp",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Remote MCP server for Lunch Money personal finance API",
+  "main": "src/index.ts",
   "scripts": {
+    "start": "vercel dev",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["mcp", "lunchmoney", "personal-finance"],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.19.12",
     "hono": "^4.12.10"
